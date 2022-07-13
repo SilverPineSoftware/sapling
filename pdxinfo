@@ -1,0 +1,7 @@
+name=Sapling Demo App
+author=Silverpine
+description=Sapling Demo App
+bundleID=com.silverpine.sapling
+version=0.0.1
+buildNumber=1
+imagePath=SystemAssets

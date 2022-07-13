@@ -1,0 +1,1 @@
+std = "lua54+playdate+project"
