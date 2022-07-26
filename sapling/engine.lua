@@ -9,7 +9,7 @@
 
 import 'sapling'
 
-Engine = { drawables = { }, inputHandlers = { } }
+Engine = { drawables = { }, inputHandlers = { }, needsRedraw = false}
 
 function Engine:addInputHandler(obj)
 	assert(obj)
@@ -27,6 +27,16 @@ function Engine:removeInputHandler(obj)
 	end
 end
 
+function Engine:handleCrankMoved(change, acceleratedChange)
+	for i = #Engine.inputHandlers, 1, -1 do
+		local inputHandler = Engine.inputHandlers[i]
+		if inputHandler:handleCrankMoved(change, acceleratedChange) == true then
+			return true
+		end
+	end
+end
+
+
 function Engine:handleUpPressed()
 	for i = #Engine.inputHandlers, 1, -1 do
 		local inputHandler = Engine.inputHandlers[i]
@@ -36,10 +46,29 @@ function Engine:handleUpPressed()
 	end
 end
 
+function Engine:handleUpReleased()
+	for i = #Engine.inputHandlers, 1, -1 do
+		local inputHandler = Engine.inputHandlers[i]
+		if inputHandler:handleUpReleased() == true then
+			return true
+		end
+	end
+end
+
+
 function Engine:handleDownPressed()
 	for i = #Engine.inputHandlers, 1, -1 do
 		local inputHandler = Engine.inputHandlers[i]
 		if inputHandler:handleDownPressed() == true then
+			return true
+		end
+	end
+end
+
+function Engine:handleDownReleased()
+	for i = #Engine.inputHandlers, 1, -1 do
+		local inputHandler = Engine.inputHandlers[i]
+		if inputHandler:handleDownReleased() == true then
 			return true
 		end
 	end
@@ -89,27 +118,16 @@ function Engine:addDrawable(drawable)
 	local next = #Engine.drawables + 1
 	Engine.drawables[next] = drawable
 	drawable:didAddToParent()
-
-	-- We need to tell everything redraw...
-	for x = 1, #Engine.drawables do
-		local drawable = Engine.drawables[x]
-		drawable:requestRedraw()
-	end
+	Engine.needsRedraw = true
 end
 
 function Engine:removeDrawable(drawable)
 	assert(drawable ~= nil)
+	Engine.needsRedraw = true
 
 	for i = 1, #Engine.drawables do
 		if Engine.drawables[i] == drawable then
 			table.remove(Engine.drawables, i)
-
-			-- We need to tell everything redraw...
-			for x = 1, #Engine.drawables do
-				local drawable = Engine.drawables[x]
-				drawable:requestRedraw()
-			end
-
 			return
 		end
 	end
@@ -126,7 +144,9 @@ function Engine:redraw()
 	playdate.graphics.setColor(playdate.graphics.kColorBlack)
 	playdate.graphics.setImageDrawMode(playdate.graphics.kDrawModeNXOR)
 
-	local needsRedraw = false
+	local needsRedraw = Engine.needsRedraw
+	Engine.needsRedraw = false
+
 	for i = 1,#Engine.drawables do
 	   local object = Engine.drawables[i]
 	   if object.draw ~= nil then
@@ -148,11 +168,19 @@ function playdate.update()
 end
 
 function playdate.upButtonUp()
-   Engine:handleUpPressed()
+   Engine:handleUpReleased()
+end
+
+function playdate.upButtonDown()
+	Engine:handleUpPressed()
+end
+
+function playdate.downButtonDown()
+	Engine:handleDownPressed()
 end
 
 function playdate.downButtonUp()
-   Engine:handleDownPressed()
+   Engine:handleDownReleased()
 end
 
 function playdate.leftButtonUp()
@@ -170,4 +198,8 @@ end
 
 function playdate.BButtonUp()
    Engine:handleBPressed()
+end
+
+function playdate.cranked(change, acceleratedChange)
+	Engine:handleCrankMoved(change, acceleratedChange)
 end

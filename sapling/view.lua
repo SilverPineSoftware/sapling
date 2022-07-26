@@ -103,6 +103,18 @@ function View:executeDraw()
 	end
 end
 
+function View:handleCrankMoved(change, acceleratedChange)
+	for i = #self.subviews, 1, -1 do
+		local view = self.subviews[i]
+		if view.handleCrankMoved ~= nil then
+			if view:handleCrankMoved(change, acceleratedChange) == true then
+				return true
+				end
+		end
+	end
+	return false
+end
+
 function View:handleUpPressed()
 	for i = #self.subviews, 1, -1 do
 		local view = self.subviews[i]
@@ -115,6 +127,19 @@ function View:handleUpPressed()
 	return false
 end
 
+function View:handleUpReleased()
+	for i = #self.subviews, 1, -1 do
+		local view = self.subviews[i]
+		if view.handleUpReleased ~= nil then
+			if view:handleUpReleased() == true then
+				return true
+				end
+		end
+	end
+	return false
+end
+
+
 function View:handleDownPressed()
 	for i = #self.subviews, 1, -1 do
 		local view = self.subviews[i]
@@ -126,6 +151,19 @@ function View:handleDownPressed()
 	end
 	return false
 end
+
+function View:handleDownReleased()
+	for i = #self.subviews, 1, -1 do
+		local view = self.subviews[i]
+		if view.handleDownReleased ~= nil then
+			if view:handleDownReleased() == true then
+				return true
+				end
+		end
+	end
+	return false
+end
+
 
 function View:handleLeftPressed()
 	for i = #self.subviews, 1, -1 do
@@ -177,8 +215,8 @@ end
 
 function View:setActive(active)
 	if active == true then
-		Engine:addDrawable(self)
 		Engine:addInputHandler(self)
+		Engine:addDrawable(self)
 	else
 		Engine:removeDrawable(self)
 		Engine:removeInputHandler(self)

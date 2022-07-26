@@ -28,12 +28,12 @@ end
 
 function TabSelectView:fireSelectionTimer()
 
-	local time = 0.05
+	local time = 0.5
 	if self.selectionShowing == true then
 		self.selectionShowing = false
 	else
 		self.selectionShowing = true
-		time = 2.5
+		time = 0.5
 	end
 
 	self:requestRedraw()
