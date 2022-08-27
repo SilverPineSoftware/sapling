@@ -16,5 +16,4 @@ import 'sapling/tabselectview'
 import 'sapling/fontmanager'
 import 'sapling/alert'
 import 'sapling/buttonview'
-import 'sapling/scrollabletextview'
 

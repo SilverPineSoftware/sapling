@@ -10,7 +10,7 @@ import 'sapling'
 
 local gfx = playdate.graphics
 
-class('TextView').extends(View)
+class('TextView').extends(Drawable)
 
 function TextView:init(text)
 	TextView.super.init(self)
@@ -99,52 +99,21 @@ function TextView:getLines(text)
 
 	local line = ""
 	local font = FontManager:currentFont()
-
-	local tokens = {}
-	for token in string.gmatch(text, "[^ ]+") do
-		local word = ""
-		for i = 1, #token do
-			local character = token:sub(i,i)
-
-			if character == "\t" then
-				character = "    "
-			end
-
-			if character == "\n" then
-				tokens[#tokens + 1] = word
-				tokens[#tokens + 1] = "\n"
-				word = ""
-			else
-				word = word .. character
-			end
-		end
-		if #word > 0 then
-			tokens[#tokens + 1] = word
-		end
-	end
-
-	for i = 1, #tokens do
-		local token = tokens[i]
+	for token in string.gmatch(text, "[^%s]+") do
 		local newLine = line
 		if #newLine > 0 then
 			newLine = newLine .. " "
 		end
-		if token ~= "\n" then
-			newLine = newLine .. token
-		end
+		newLine = newLine .. token
 		local width = font:getTextWidth(newLine)
-		if width > frameWidth or token == "\n" then
+		if width > frameWidth then
 			-- We have to do this, in case the first line is too long
 			if #line <= 0 then
 				line = newLine
 				token = ""
 			end
 			newLines[lineCount] = line
-			if token ~= "\n" then
-				line = token
-			else
-				line = ""
-			end
+			line = token
 			lineCount = lineCount + 1
 		else
 			line = newLine
